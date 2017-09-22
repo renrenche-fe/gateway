@@ -56,7 +56,7 @@ router.post('/notify', function (req, res, next) {
 		let summary = lines.slice(0, 10);
 
 		if (lines.length > 10) {
-			summary.push(`......[更多](${issueUrl})`);
+			summary.push('', '*[更多内容请前往 issue 查看]*');
 		}
 
 		summary = summary.map(line => `> ${line}`).join('\r\n');
