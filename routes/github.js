@@ -30,16 +30,14 @@ router.post('/notify', function (req, res, next) {
 	} = req.body;
 
 	const user = sender.login;
-	// issue
-	const issueTitle = issue.title;
-	const issueUrl = issue.html_url;
-	// repo
-	const repoName = repository.name;
 
 	let params = null;
 
 	if (eventType === GITHUB_EVENT_TYPE.ISSUES && action === ACTION.OPENED) {
 		// opened a issue
+		const repoName = repository.name;
+		const issueTitle = issue.title;
+		const issueUrl = issue.html_url;
 		params = {
 			msgtype: 'markdown',
 			markdown: {
@@ -51,11 +49,23 @@ router.post('/notify', function (req, res, next) {
 
 	if (eventType === GITHUB_EVENT_TYPE.ISSUE_COMMENT && action === ACTION.CREATED) {
 		// created a issue comment
+		const issueTitle = issue.title;
+		const issueUrl = issue.html_url;
+		const commentBody = comment.body || '';
+		const lines = commentBody.split('\r\n');
+		let summary = lines.slice(0, 10);
+
+		if (lines.length > 10) {
+			summary.push(`......[更多](${issueUrl})`);
+		}
+
+		summary = summary.map(line => `> ${line}`).join('\r\n');
+
 		params = {
 			msgtype: 'markdown',
 			markdown: {
 				title: `${user} 在 ${issueTitle} 下发表了评论`,
-				text: `${user} 在 [${issueTitle}](${issueUrl}) 下发表了评论：\n > ${comment.body}`,
+				text: `${user} 在 [${issueTitle}](${issueUrl}) 下发表了评论：\r\n ${summary}`,
 			}
 		}
 	}
