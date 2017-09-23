@@ -15,6 +15,22 @@ const ACTION = {
 	OPENED: 'opened',
 };
 
+/**
+ * 返回展示摘要
+ * @param {any} body
+ * @returns
+ */
+function getSummary(body) {
+	const lines = body.split('\r\n');
+	let summary = lines.slice(0, 10);
+
+	if (lines.length > 10) {
+		summary.push('', '*[更多内容请前往 issue 查看]*');
+	}
+
+	return summary.map(line => `> ${line}`).join('\r\n');
+}
+
 /* POST github notify */
 router.post('/notify', function (req, res, next) {
 	const eventType = req.headers['x-github-event'];
@@ -38,11 +54,14 @@ router.post('/notify', function (req, res, next) {
 		const repoName = repository.name;
 		const issueTitle = issue.title;
 		const issueUrl = issue.html_url;
+		const issueBody = issue.body || '';
+		const summary = getSummary(issueBody);
+
 		params = {
 			msgtype: 'markdown',
 			markdown: {
 				title: `${user} 在 ${repoName} 下添加了 issue`,
-				text: `${user} 在 ${repoName} 下添加了 issue：[${issueTitle}](${issueUrl})`,
+				text: `${user} 在 ${repoName} 下添加了 issue：[${issueTitle}](${issueUrl}) \r\n ${summary}`,
 			}
 		}
 	}
@@ -52,14 +71,7 @@ router.post('/notify', function (req, res, next) {
 		const issueTitle = issue.title;
 		const issueUrl = issue.html_url;
 		const commentBody = comment.body || '';
-		const lines = commentBody.split('\r\n');
-		let summary = lines.slice(0, 10);
-
-		if (lines.length > 10) {
-			summary.push('', '*[更多内容请前往 issue 查看]*');
-		}
-
-		summary = summary.map(line => `> ${line}`).join('\r\n');
+		const summary = getSummary(commentBody);
 
 		params = {
 			msgtype: 'markdown',
