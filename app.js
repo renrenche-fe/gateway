@@ -9,6 +9,7 @@ var moment = require('moment');
 
 var index = require('./routes/index');
 var github = require('./routes/github');
+var insight = require('./routes/insight');
 
 var app = express();
 
@@ -26,6 +27,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 app.use('/github', github);
+app.use('/insight', insight);
 
 winston.remove(winston.transports.Console);
 winston.add(require('winston-daily-rotate-file'), {     // eslint-disable-line
