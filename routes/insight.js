@@ -22,7 +22,7 @@ router.post('/notify', function (req, res, next) {
 	const params = {
 		msgtype: 'text',
 		text: {
-			content: message,
+			content: `[insight] ${message}`,
 		},
 	}
 
